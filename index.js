@@ -1,6 +1,6 @@
 const express = require("express");
-const morgan = require("morgan");
 const app = express();
+const cors = require("cors");
 
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
@@ -10,11 +10,9 @@ const requestLogger = (request, response, next) => {
   next();
 };
 
+app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
-app.use(
-  morgan(":method :url :status :res[content-length] - :response-time ms")
-);
 
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
@@ -67,8 +65,10 @@ app.get("/api/persons/:id", (request, response) => {
 
 app.delete("/api/persons/:id", (request, response) => {
   const { id } = request.params;
+  deletedUser = persons.find((people) => people.id === id);
   persons = persons.filter((people) => people.id !== id);
-  response.status(204).end();
+  console.log(deletedUser);
+  response.json(deletedUser);
 });
 
 const newId = () => {
@@ -81,7 +81,7 @@ app.post("/api/persons", (request, response) => {
     const newPerson = {
       name: name,
       number: number,
-      id: newId(),
+      id: String(newId()),
     };
     persons = persons.concat(newPerson);
     return response.json(newPerson);
