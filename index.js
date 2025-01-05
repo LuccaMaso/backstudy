@@ -25,6 +25,11 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === "CastError") {
     return response.status(400).send({ error: "malformatted id" });
   }
+  if (error.name === "ValidationError") {
+    return response
+      .status(400)
+      .send({ error: "the name, number is missing or the name is too short" });
+  }
 
   next(error);
 };
@@ -64,7 +69,7 @@ app.delete("/api/persons/:id", (request, response) => {
     });
 });
 
-app.post("/api/persons", (request, response) => {
+app.post("/api/persons", (request, response, next) => {
   const { name, number } = request.body;
   const newPerson = new Person({
     name: name,
@@ -74,19 +79,21 @@ app.post("/api/persons", (request, response) => {
   newPerson
     .save()
     .then((answer) => response.json(answer))
-    .catch((error) =>
-      console.log("It was not possible to post:", error.message)
-    );
+    .catch((error) => next(error));
 });
 
-app.put("/api/persons/:id", (request, response) => {
+app.put("/api/persons/:id", (request, response, next) => {
   const { id } = request.params;
   const body = request.body;
   const newPerson = {
     name: body.name,
     number: body.number,
   };
-  Person.findByIdAndUpdate(id, newPerson, { new: true })
+  Person.findByIdAndUpdate(id, newPerson, {
+    new: true,
+    runValidators: true,
+    context: "query",
+  })
     .then((answer) => {
       response.json(answer);
     })

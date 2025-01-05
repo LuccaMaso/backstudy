@@ -5,3 +5,12 @@ Content-Type: application/json
     "name": "Minhau",
     "number": "5678"
 }
+
+###
+
+POST http://localhost:3002/api/persons
+Content-Type: application/json
+
+{
+    "name": "teste"
+}

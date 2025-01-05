@@ -10,8 +10,23 @@ mongoose
   .catch((error) => console.log("Couldn't connect to DB:", error.message));
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (number) {
+        return (
+          /^[0-9]{2}-[0-9]{6}[0-9]*$/.test(number) ||
+          /^[0-9]{3}-[0-9]{5}[0-9]*$/.test(number)
+        );
+      },
+    },
+  },
 });
 
 personSchema.set("toJSON", {
