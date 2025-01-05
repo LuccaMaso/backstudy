@@ -12,12 +12,12 @@ mongoose
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    minLength: 3,
-    required: true,
+    minLength: [3, "O nome deve ter no minimo 3 caracteres"],
+    required: [true, "É necessário possuir nome"],
   },
   number: {
     type: String,
-    required: true,
+    required: [true, "É necessário possuir numero"],
     validate: {
       validator: function (number) {
         return (
@@ -25,6 +25,7 @@ const personSchema = new mongoose.Schema({
           /^[0-9]{3}-[0-9]{5}[0-9]*$/.test(number)
         );
       },
+      message: "the number is not in the corret format",
     },
   },
 });

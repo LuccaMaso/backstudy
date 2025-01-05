@@ -26,9 +26,12 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: "malformatted id" });
   }
   if (error.name === "ValidationError") {
-    return response
-      .status(400)
-      .send({ error: "the name, number is missing or the name is too short" });
+    if (error.errors.name) {
+      return response.status(400).send({ error: error.errors.name.message });
+    }
+    if (error.errors.number) {
+      return response.status(400).send({ error: error.errors.number.message });
+    }
   }
 
   next(error);
@@ -75,6 +78,11 @@ app.post("/api/persons", (request, response, next) => {
     name: name,
     number: number,
   });
+
+  const error = newPerson.validateSync();
+  if (error) {
+    next(error);
+  }
 
   newPerson
     .save()
